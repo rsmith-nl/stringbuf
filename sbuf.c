@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2025-08-29T00:19:49+0200
+// Last modified: 2025-09-01T20:33:38+0200
 
 #include "sbuf.h"
 #include <assert.h>
@@ -36,4 +36,11 @@ void sbuf_fputs(Sbuf *buf, FILE* stream)
   assert(buf);
   fputs(buf->data, stream);
   fflush(stream);
+}
+
+void sbuf_reset(Sbuf *buf)
+{
+  assert(buf);
+  memset(buf->data, 0, SBUF_MAX);
+  buf->used = 0;
 }

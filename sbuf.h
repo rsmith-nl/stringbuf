@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2025-08-29T00:22:35+0200
+// Last modified: 2025-09-01T20:32:25+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -33,3 +33,5 @@ extern bool sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len);
 extern ptrdiff_t sbuf_remaining(Sbuf *buf);
 // Writes the buffer to the designated stream, and flushes the stream.
 extern void sbuf_fputs(Sbuf *buf, FILE* stream);
+// Empty the buffer.
+extern void sbuf_reset(Sbuf *buf);
