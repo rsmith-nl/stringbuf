@@ -5,23 +5,27 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2025-09-01T20:33:38+0200
+// Last modified: 2025-09-01T22:59:43+0200
 
 #include "sbuf.h"
 #include <assert.h>
 #include <string.h>
 
-bool sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len)
+void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len)
 {
   assert(buf);
+  if (buf->error == true) {
+    return;
+  }
   ptrdiff_t alen = strnlen(str, len);
   ptrdiff_t remaining = SBUF_MAX - buf->used - 1;
   if (len < remaining) {
     memcpy(buf->data+buf->used, str, alen);
     buf->used += alen;
-    return true;
+    buf->error = false;
+  } else {
+    buf->error = true;
   }
-  return false;
 }
 
 ptrdiff_t sbuf_remaining(Sbuf *buf)
@@ -43,4 +47,5 @@ void sbuf_reset(Sbuf *buf)
   assert(buf);
   memset(buf->data, 0, SBUF_MAX);
   buf->used = 0;
+  buf->error = false;
 }

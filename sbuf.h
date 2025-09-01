@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2025-09-01T20:32:25+0200
+// Last modified: 2025-09-01T22:58:16+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -23,12 +23,13 @@
 
 typedef struct {
   ptrdiff_t used;
+  bool error;
   char data[SBUF_MAX];
 } Sbuf;
 
-// Appends at most “len” bytes to “buf” from “str”.
-// Returns “true” if succesful, “false” if there is not enough space.
-extern bool sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len);
+// Appends at most “len” bytes to “buf” from “str”. 
+// Sets “error” to “false” if there is not enough space.
+extern void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len);
 // Returns how much space remains in the buffer “buf”.
 extern ptrdiff_t sbuf_remaining(Sbuf *buf);
 // Writes the buffer to the designated stream, and flushes the stream.
