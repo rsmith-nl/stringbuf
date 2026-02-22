@@ -5,12 +5,12 @@ check:  ## checks if the code builds cleanly.
 	$(CC) $(CFLAGS) -c sbuf.c
 	rm -f *.o
 
-#sbtest: sbtest.c sbuf.c sbuf.h  ## builds the test program.
-#	$(CC) $(CFLAGS) -o sbtest sbtest.c sbuf
+sbtest: sbtest.c sbuf.c sbuf.h  ## builds the test program.
+	$(CC) $(CFLAGS) -o sbtest sbtest.c sbuf.c
 
 .PHONY: clean
 clean:
-	rm -f *.o atest
+	rm -f *.o sbtest
 
 .PHONY: style
 style:  ## Reformat source code using astyle.
