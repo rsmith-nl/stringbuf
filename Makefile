@@ -1,7 +1,7 @@
 CFLAGS = -pipe -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
                 -Wshadow -Wmissing-field-initializers -Wpointer-arith
 
-check:  ## checks if the code builds cleanly.
+check:  ## checks if the code builds cleanly. (default)
 	$(CC) $(CFLAGS) -c sbuf.c
 	rm -f *.o
 
