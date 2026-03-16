@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-03-16T00:41:20+0100
+// Last modified: 2026-03-16T23:00:28+0100
 
 #include "sbuf.h"
 
@@ -42,18 +42,20 @@ int main(int argc, char *argv[])
   char *first = "fixed string.\n";
   char *second = "another fixed string.\n";
   char *third = "format string. Remaining: %d bytes\n";
-  puts(PURPLE"Using sbuf_append... "RESET);
+  puts(PURPLE"Starting the tests."RESET);
+  puts(CYAN"Using sbuf_append... "RESET);
   sbuf_append(&buf, first, strlen(first));
   pass_fail(buf.error==false);
-  puts(PURPLE"Using sbuf_appends... "RESET);
+  puts(CYAN"Using sbuf_appends... "RESET);
   sbuf_appends(&buf, second);
   pass_fail(buf.error==false);
-  puts(PURPLE"Using sbuf_printf... "RESET);
+  puts(CYAN"Using sbuf_printf... "RESET);
   sbuf_printf(&buf, third, (int)sbuf_remaining(&buf));
   pass_fail(buf.error==false);
   puts(CYAN"Contents of the stringbuf:"RESET);
   sbuf_fputs(&buf, stdout);
   puts(CYAN"End of the contents."RESET);
+  puts(PURPLE"*** Result ***"RESET);
   if (failcount == 0) {
     puts(GREEN"+++ All tests PASSED! +++"RESET);
   } else {
