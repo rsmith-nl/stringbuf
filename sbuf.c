@@ -5,12 +5,14 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-02-22T11:28:54+0100
+// Last modified: 2026-03-20T12:46:33+0100
 
 #include "sbuf.h"
 #include <assert.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 
@@ -34,12 +36,97 @@ void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len)
 
 inline void sbuf_appends(Sbuf *buf, const char *str)
 {
+  sbuf_append(buf, str, strlen(str));
+}
+
+extern void sbuf_appendi32(Sbuf *buf, const int32_t i)
+{
   assert(buf!=0);
   if (buf->error == true) {
     return;
   }
-  ptrdiff_t remaining = SBUF_SIZE - buf->used - 1;
-  sbuf_append(buf, str, strnlen(str, remaining));
+#define BUFLENI 14
+#define ORD0 48
+  int work = 0;
+  bool negative = false;
+  if (i < 0) {
+    work = -i;
+    negative = true;
+  } else {
+    work = i;
+  }
+  char tmpbuf[BUFLENI] = {0};
+  int index = sizeof(tmpbuf) - 1;
+  do {
+    div_t result = div(work, 10);
+    tmpbuf[index--] = ORD0 + result.rem;
+    work = result.quot;
+  } while (work > 0 && index > 1);
+  if (negative) {
+    assert(index > 0);
+    tmpbuf[index--] = '-';
+  }
+  sbuf_appends(buf, tmpbuf+index+1);
+}
+
+static double frexp10(double arg, int *exp)
+{
+  *exp = (arg == 0) ? 0 : (int)floor(log10(fabs(arg)));
+  return arg * pow(10, -(*exp));
+}
+
+extern void sbuf_appendd(Sbuf *buf, const double f)
+{
+#define BUFLEND 30
+#define EXPLEN (BUFLEND-4-1)
+  assert(buf!=0);
+  if (buf->error != false) {
+    return;
+  }
+  int exp;
+  double mantissa = frexp10(f, &exp);
+  double am = fabs(mantissa);
+  char tbuf[BUFLEND] = {0};
+  int bufused = 0;
+  if (signbit(f)) {
+    tbuf[bufused++] = '-';
+  }
+  if (isinf(f)) {
+    char inf[4] = {0xE2, 0x88, 0x9E, 0}; // UTF-8 for infinity symbol.
+    sbuf_appends(buf, inf);
+    return;
+  } else if (mantissa == 0 && exp == 0) {
+    tbuf[bufused++] = '0';
+    sbuf_appends(buf, tbuf);
+    return;
+  } else if (isnan(f)) {
+    sbuf_appends(buf, "NaN");
+    return;
+  }
+  int decimal = (int)floor(am);
+  tbuf[bufused++] = ORD0 + decimal;
+  am = (am - decimal) * 10;
+  tbuf[bufused++] = '.';
+  do {
+    decimal = (int)floor(am);
+    tbuf[bufused++] = ORD0 + decimal;
+    am = round((am - decimal) * 100)/10.0;
+  } while (am > 0 && bufused < EXPLEN);
+  tbuf[bufused++] = 'e';
+  if (exp < 0) {
+    tbuf[bufused++] = '-';
+    exp = -exp;
+  } else {
+    tbuf[bufused++] = '+';
+  }
+  if (exp > 100) {
+    tbuf[bufused++] = ORD0 + exp / 100;
+  } else if (exp > 10) {
+    tbuf[bufused++] = ORD0 + exp / 10;
+  } else {
+    tbuf[bufused++] = ORD0 + exp;
+  }
+  sbuf_appends(buf, tbuf);
 }
 
 void sbuf_printf(Sbuf *buf, const char *fmt, ...)

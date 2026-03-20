@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-02-22T11:28:46+0100
+// Last modified: 2026-03-20T12:47:30+0100
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -16,6 +16,7 @@
 
 #include <stddef.h>  // for ptrdiff_t
 #include <stdbool.h> // for bool
+#include <stdint.h>
 #include <stdio.h>   // for FILE*
 #include <limits.h>  // for PATH_MAX
 
@@ -40,7 +41,13 @@ extern void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len);
 // Appends null-terminated strings “str” to “buf”.
 extern void sbuf_appends(Sbuf *buf, const char *str);
 
-// Appends using *printf.
+// Format and append an integer number to buf.
+extern void sbuf_appendi32(Sbuf *buf, const int32_t i);
+
+// Format and append a double to buf.
+extern void sbuf_appendd(Sbuf *buf, const double f);
+
+// Append using snprintf.
 extern void sbuf_printf(Sbuf *buf, const char *fmt, ...);
 
 // Returns how much space remains in the buffer “buf”.
