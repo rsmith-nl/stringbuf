@@ -18,15 +18,15 @@
 
 void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len)
 {
-  assert(buf!=0);
-  assert(str!=0);
+  assert(buf != 0);
+  assert(str != 0);
   if (buf->error == true) {
     return;
   }
   ptrdiff_t alen = strnlen(str, len);
   ptrdiff_t remaining = SBUF_SIZE - buf->used - 1;
   if (len < remaining) {
-    memcpy(buf->data+buf->used, str, alen);
+    memcpy(buf->data + buf->used, str, alen);
     buf->used += alen;
     buf->error = false;
   } else {
@@ -41,7 +41,7 @@ inline void sbuf_appends(Sbuf *buf, const char *str)
 
 extern void sbuf_appendi32(Sbuf *buf, const int32_t i)
 {
-  assert(buf!=0);
+  assert(buf != 0);
   if (buf->error == true) {
     return;
   }
@@ -66,7 +66,7 @@ extern void sbuf_appendi32(Sbuf *buf, const int32_t i)
     assert(index > 0);
     tmpbuf[index--] = '-';
   }
-  sbuf_appends(buf, tmpbuf+index+1);
+  sbuf_appends(buf, tmpbuf + index + 1);
 }
 
 static double frexp10(double arg, int *exp)
@@ -79,7 +79,7 @@ extern void sbuf_appendd(Sbuf *buf, const double f)
 {
 #define BUFLEND 30
 #define EXPLEN (BUFLEND-4-1)
-  assert(buf!=0);
+  assert(buf != 0);
   if (buf->error != false) {
     return;
   }
@@ -110,7 +110,7 @@ extern void sbuf_appendd(Sbuf *buf, const double f)
   do {
     decimal = (int)floor(am);
     tbuf[bufused++] = ORD0 + decimal;
-    am = round((am - decimal) * 100)/10.0;
+    am = round((am - decimal) * 100) / 10.0;
   } while (am > 0 && bufused < EXPLEN);
   tbuf[bufused++] = 'e';
   if (exp < 0) {
@@ -131,18 +131,18 @@ extern void sbuf_appendd(Sbuf *buf, const double f)
 
 void sbuf_printf(Sbuf *buf, const char *fmt, ...)
 {
-  assert(buf!=0);
-  assert(fmt!=0);
+  assert(buf != 0);
+  assert(fmt != 0);
   if (buf->error == true) {
     return;
   }
   ptrdiff_t remaining = SBUF_SIZE - buf->used - 1;
   va_list ap;
   va_start(ap, fmt);
-  ptrdiff_t used = vsnprintf(buf->data+buf->used, remaining, fmt, ap);
+  ptrdiff_t used = vsnprintf(buf->data + buf->used, remaining, fmt, ap);
   va_end(ap);
   if (used > remaining) { // discard
-    memset(buf->data+buf->used, 0, remaining);
+    memset(buf->data + buf->used, 0, remaining);
     buf->error = true;
   } else {
     buf->error = false;
@@ -152,22 +152,22 @@ void sbuf_printf(Sbuf *buf, const char *fmt, ...)
 
 ptrdiff_t sbuf_remaining(Sbuf *buf)
 {
-  assert(buf!=0);
+  assert(buf != 0);
   ptrdiff_t remaining = SBUF_SIZE - buf->used - 1;
   return remaining;
 }
 
 void sbuf_fputs(Sbuf *buf, FILE* stream)
 {
-  assert(buf!=0);
-  assert(stream!=0);
+  assert(buf != 0);
+  assert(stream != 0);
   fputs(buf->data, stream);
   fflush(stream);
 }
 
 void sbuf_reset(Sbuf *buf)
 {
-  assert(buf!=0);
+  assert(buf != 0);
   memset(buf->data, 0, SBUF_SIZE);
   buf->used = 0;
   buf->error = false;
