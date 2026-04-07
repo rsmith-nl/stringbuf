@@ -5,7 +5,7 @@ Simple string assembly for C
 :tags: C programming, string building, public domain
 :author: Roland Smith
 
-.. Last modified: 2026-02-22T12:35:00+0100
+.. Last modified: 2026-04-08T00:26:12+0200
 .. vim:spelllang=en
 
 Introduction
@@ -38,5 +38,13 @@ Usage
 Just copy the source files (``sbuf.h`` and ``sbuf.c``) in to
 your project, and hook them up to the build.
 
-The included ``Makefile`` builds the code for testing and can build a test
-program with ``make sbtest``.
+Alternatively, you can use this project as a *single header library*.
+This variant can be found in the subdirectory ``single_header/sbuf.h``.
+To use the single header library, copy the file ``sbuf.h`` from
+``single_header/`` into your project.
+In **one** of the C-files you use the single header library in, you should
+define ``SBUF_IMPLEMENTATION`` before including the library::
+
+    #define SBUF_IMPLEMENTATION
+    #include "sbuf.h"
+

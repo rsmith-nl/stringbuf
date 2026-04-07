@@ -1,0 +1,232 @@
+// file: sbuf.h
+// vim:fileencoding=utf-8:ft=c:tabstop=2
+// This is free and unencumbered software released into the public domain.
+//
+// Author: R.F. Smith <rsmith@xs4all.nl>
+// SPDX-License-Identifier: Unlicense
+// Created: 2025-08-28 23:49:02 +0200
+// Last modified: 2026-03-20T12:47:30+0100
+
+// Simple string buffer.
+// Mostly conceived for assembling strings.
+// Change the definition of SBUF_SIZE if you need longer strings.
+// For general allocation, use an arena instead!
+
+#pragma once
+
+#include <stddef.h>  // for ptrdiff_t
+#include <stdbool.h> // for bool
+#include <stdint.h>
+#include <stdio.h>   // for FILE*
+#include <limits.h>  // for PATH_MAX
+
+#define SBUF_SIZE PATH_MAX
+
+typedef struct {
+  ptrdiff_t used;
+  bool error;  // use “error” instead of “ok” so a zerod-out Sbuf is valid.
+  char data[SBUF_SIZE];
+} Sbuf;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// All appends set “error” to “true” if there is not enough space.
+// All appends immediately return if “error” is “true”.
+
+// Appends at most “len” bytes to “buf” from “str”.
+extern void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len);
+
+// Appends null-terminated strings “str” to “buf”.
+extern void sbuf_appends(Sbuf *buf, const char *str);
+
+// Format and append an integer number to buf.
+extern void sbuf_appendi32(Sbuf *buf, const int32_t i);
+
+// Format and append a double to buf.
+extern void sbuf_appendd(Sbuf *buf, const double f);
+
+// Append using snprintf.
+extern void sbuf_printf(Sbuf *buf, const char *fmt, ...);
+
+// Returns how much space remains in the buffer “buf”.
+extern ptrdiff_t sbuf_remaining(Sbuf *buf);
+
+// Writes the buffer to the designated stream, and flushes the stream.
+extern void sbuf_fputs(Sbuf *buf, FILE* stream);
+
+// Empty the buffer.
+extern void sbuf_reset(Sbuf *buf);
+
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef SBUF_IMPLEMENTATION
+#include <assert.h>
+#include <math.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+
+void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len)
+{
+  assert(buf != 0);
+  assert(str != 0);
+  if (buf->error == true) {
+    return;
+  }
+  ptrdiff_t alen = strnlen(str, len);
+  ptrdiff_t remaining = SBUF_SIZE - buf->used - 1;
+  if (len < remaining) {
+    memcpy(buf->data + buf->used, str, alen);
+    buf->used += alen;
+    buf->error = false;
+  } else {
+    buf->error = true;
+  }
+}
+
+inline void sbuf_appends(Sbuf *buf, const char *str)
+{
+  sbuf_append(buf, str, strlen(str));
+}
+
+extern void sbuf_appendi32(Sbuf *buf, const int32_t i)
+{
+  assert(buf != 0);
+  if (buf->error == true) {
+    return;
+  }
+#define BUFLENI 14
+#define ORD0 48
+  int work = 0;
+  bool negative = false;
+  if (i < 0) {
+    work = -i;
+    negative = true;
+  } else {
+    work = i;
+  }
+  char tmpbuf[BUFLENI] = {0};
+  int index = sizeof(tmpbuf) - 1;
+  do {
+    div_t result = div(work, 10);
+    tmpbuf[index--] = ORD0 + result.rem;
+    work = result.quot;
+  } while (work > 0 && index > 1);
+  if (negative) {
+    assert(index > 0);
+    tmpbuf[index--] = '-';
+  }
+  sbuf_appends(buf, tmpbuf + index + 1);
+}
+
+static double frexp10(double arg, int *exp)
+{
+  *exp = (arg == 0) ? 0 : (int)floor(log10(fabs(arg)));
+  return arg * pow(10, -(*exp));
+}
+
+extern void sbuf_appendd(Sbuf *buf, const double f)
+{
+#define BUFLEND 30
+#define EXPLEN (BUFLEND-4-1)
+  assert(buf != 0);
+  if (buf->error != false) {
+    return;
+  }
+  int exp;
+  double mantissa = frexp10(f, &exp);
+  double am = fabs(mantissa);
+  char tbuf[BUFLEND] = {0};
+  int bufused = 0;
+  if (signbit(f)) {
+    tbuf[bufused++] = '-';
+  }
+  if (isinf(f)) {
+    char inf[4] = {0xE2, 0x88, 0x9E, 0}; // UTF-8 for infinity symbol.
+    sbuf_appends(buf, inf);
+    return;
+  } else if (mantissa == 0 && exp == 0) {
+    tbuf[bufused++] = '0';
+    sbuf_appends(buf, tbuf);
+    return;
+  } else if (isnan(f)) {
+    sbuf_appends(buf, "NaN");
+    return;
+  }
+  int decimal = (int)floor(am);
+  tbuf[bufused++] = ORD0 + decimal;
+  am = (am - decimal) * 10;
+  tbuf[bufused++] = '.';
+  do {
+    decimal = (int)floor(am);
+    tbuf[bufused++] = ORD0 + decimal;
+    am = round((am - decimal) * 100) / 10.0;
+  } while (am > 0 && bufused < EXPLEN);
+  tbuf[bufused++] = 'e';
+  if (exp < 0) {
+    tbuf[bufused++] = '-';
+    exp = -exp;
+  } else {
+    tbuf[bufused++] = '+';
+  }
+  if (exp > 100) {
+    tbuf[bufused++] = ORD0 + exp / 100;
+  } else if (exp > 10) {
+    tbuf[bufused++] = ORD0 + exp / 10;
+  } else {
+    tbuf[bufused++] = ORD0 + exp;
+  }
+  sbuf_appends(buf, tbuf);
+}
+
+void sbuf_printf(Sbuf *buf, const char *fmt, ...)
+{
+  assert(buf != 0);
+  assert(fmt != 0);
+  if (buf->error == true) {
+    return;
+  }
+  ptrdiff_t remaining = SBUF_SIZE - buf->used - 1;
+  va_list ap;
+  va_start(ap, fmt);
+  ptrdiff_t used = vsnprintf(buf->data + buf->used, remaining, fmt, ap);
+  va_end(ap);
+  if (used > remaining) { // discard
+    memset(buf->data + buf->used, 0, remaining);
+    buf->error = true;
+  } else {
+    buf->error = false;
+    buf->used += used;
+  }
+}
+
+ptrdiff_t sbuf_remaining(Sbuf *buf)
+{
+  assert(buf != 0);
+  ptrdiff_t remaining = SBUF_SIZE - buf->used - 1;
+  return remaining;
+}
+
+void sbuf_fputs(Sbuf *buf, FILE* stream)
+{
+  assert(buf != 0);
+  assert(stream != 0);
+  fputs(buf->data, stream);
+  fflush(stream);
+}
+
+void sbuf_reset(Sbuf *buf)
+{
+  assert(buf != 0);
+  memset(buf->data, 0, SBUF_SIZE);
+  buf->used = 0;
+  buf->error = false;
+}
+
+#endif // SBUF_IMPLEMENTATION
