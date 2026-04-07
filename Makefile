@@ -1,12 +1,12 @@
 CFLAGS = -pipe -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
                 -Wshadow -Wmissing-field-initializers -Wpointer-arith
 
-sbtest: sbtest.c sbuf.c sbuf.h  ## builds the test program (default).
-	$(CC) $(CFLAGS) -o sbtest sbtest.c sbuf.c -lm
+test: test.c sbuf.c sbuf.h  ## builds the test program (default).
+	$(CC) $(CFLAGS) -o test test.c sbuf.c -lm
 
 .PHONY: clean
 clean:
-	rm -f *.o sbtest
+	rm -f *.o test
 
 .PHONY: style
 style:  ## Reformat source code using astyle.

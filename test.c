@@ -1,11 +1,11 @@
-// file: sbtest.c
+// file: test.c
 // vim:fileencoding=utf-8:ft=c:tabstop=2
 // This is free and unencumbered software released into the public domain.
 //
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-03-20T12:10:42+0100
+// Last modified: 2026-04-08T00:13:50+0200
 
 #include "sbuf.h"
 
