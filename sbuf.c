@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-04-11T13:06:57+0200
+// Last modified: 2026-04-11T13:18:33+0200
 
 #include "sbuf.h"
 #include <assert.h>
@@ -39,13 +39,13 @@ inline void sbuf_appends(Sbuf *buf, char *str)
   sbuf_append(buf, str, strlen(str));
 }
 
-extern void sbuf_appendi32(Sbuf *buf, int32_t i)
+extern void sbuf_appendi(Sbuf *buf, int64_t i)
 {
   assert(buf != 0);
   if (buf->error == true) {
     return;
   }
-#define BUFLENI 14
+#define BUFLENI 21
 #define ORD0 48
   int work = 0;
   bool negative = false;

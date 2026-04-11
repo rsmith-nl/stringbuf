@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-04-11T13:07:05+0200
+// Last modified: 2026-04-11T13:18:17+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -42,7 +42,7 @@ extern void sbuf_append(Sbuf *buf, char *str, ptrdiff_t len);
 extern void sbuf_appends(Sbuf *buf, char *str);
 
 // Format and append an integer number to buf.
-extern void sbuf_appendi32(Sbuf *buf, int32_t i);
+extern void sbuf_appendi(Sbuf *buf, int64_t i);
 
 // Format and append a double to buf.
 extern void sbuf_appendd(Sbuf *buf, double f);
