@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-04-11T13:20:47+0200
+// Last modified: 2026-04-11T13:41:48+0200
 
 #include "sbuf.h"
 #include <assert.h>
@@ -47,7 +47,7 @@ extern void sbuf_appendi(Sbuf *buf, int64_t i)
   }
 #define BUFLENI 21
 #define ORD0 48
-  int work = 0;
+  int64_t work = 0;
   bool negative = false;
   if (i < 0) {
     work = -i;
@@ -58,7 +58,7 @@ extern void sbuf_appendi(Sbuf *buf, int64_t i)
   char tmpbuf[BUFLENI] = {0};
   int index = sizeof(tmpbuf) - 1;
   do {
-    div_t result = div(work, 10);
+    ldiv_t result = ldiv(work, 10);
     tmpbuf[index--] = ORD0 + result.rem;
     work = result.quot;
   } while (work > 0 && index > 1);

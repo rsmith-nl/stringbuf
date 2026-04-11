@@ -104,7 +104,7 @@ extern void sbuf_appendi(Sbuf *buf, int64_t i)
   }
 #define BUFLENI 21
 #define ORD0 48
-  int work = 0;
+  int64_t work = 0;
   bool negative = false;
   if (i < 0) {
     work = -i;
@@ -115,7 +115,7 @@ extern void sbuf_appendi(Sbuf *buf, int64_t i)
   char tmpbuf[BUFLENI] = {0};
   int index = sizeof(tmpbuf) - 1;
   do {
-    div_t result = div(work, 10);
+    ldiv_t result = ldiv(work, 10);
     tmpbuf[index--] = ORD0 + result.rem;
     work = result.quot;
   } while (work > 0 && index > 1);
