@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-03-20T12:47:30+0100
+// Last modified: 2026-04-11T13:19:52+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -25,6 +25,7 @@
 typedef struct {
   ptrdiff_t used;
   bool error;  // use “error” instead of “ok” so a zerod-out Sbuf is valid.
+  char decsep; // decimal separator for sbuf_appendd. If 0, then "." is used.
   char data[SBUF_SIZE];
 } Sbuf;
 
@@ -36,19 +37,19 @@ extern "C" {
 // All appends immediately return if “error” is “true”.
 
 // Appends at most “len” bytes to “buf” from “str”.
-extern void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len);
+extern void sbuf_append(Sbuf *buf, char *str, ptrdiff_t len);
 
 // Appends null-terminated strings “str” to “buf”.
-extern void sbuf_appends(Sbuf *buf, const char *str);
+extern void sbuf_appends(Sbuf *buf, char *str);
 
 // Format and append an integer number to buf.
-extern void sbuf_appendi32(Sbuf *buf, const int32_t i);
+extern void sbuf_appendi(Sbuf *buf, int64_t i);
 
 // Format and append a double to buf.
-extern void sbuf_appendd(Sbuf *buf, const double f);
+extern void sbuf_appendd(Sbuf *buf, double f);
 
 // Append using snprintf.
-extern void sbuf_printf(Sbuf *buf, const char *fmt, ...);
+extern void sbuf_printf(Sbuf *buf, char *fmt, ...);
 
 // Returns how much space remains in the buffer “buf”.
 extern ptrdiff_t sbuf_remaining(Sbuf *buf);
@@ -72,7 +73,7 @@ extern void sbuf_reset(Sbuf *buf);
 #include <string.h>
 #include <stdarg.h>
 
-void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len)
+void sbuf_append(Sbuf *buf, char *str, ptrdiff_t len)
 {
   assert(buf != 0);
   assert(str != 0);
@@ -90,18 +91,18 @@ void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len)
   }
 }
 
-inline void sbuf_appends(Sbuf *buf, const char *str)
+inline void sbuf_appends(Sbuf *buf, char *str)
 {
   sbuf_append(buf, str, strlen(str));
 }
 
-extern void sbuf_appendi32(Sbuf *buf, const int32_t i)
+extern void sbuf_appendi(Sbuf *buf, int64_t i)
 {
   assert(buf != 0);
   if (buf->error == true) {
     return;
   }
-#define BUFLENI 14
+#define BUFLENI 21
 #define ORD0 48
   int work = 0;
   bool negative = false;
@@ -131,7 +132,7 @@ static double frexp10(double arg, int *exp)
   return arg * pow(10, -(*exp));
 }
 
-extern void sbuf_appendd(Sbuf *buf, const double f)
+extern void sbuf_appendd(Sbuf *buf, double f)
 {
 #define BUFLEND 30
 #define EXPLEN (BUFLEND-4-1)
@@ -162,7 +163,11 @@ extern void sbuf_appendd(Sbuf *buf, const double f)
   int decimal = (int)floor(am);
   tbuf[bufused++] = ORD0 + decimal;
   am = (am - decimal) * 10;
-  tbuf[bufused++] = '.';
+  if (buf->decsep != 0) {
+    tbuf[bufused++] = buf->decsep;
+  } else {
+    tbuf[bufused++] = '.';
+  }
   do {
     decimal = (int)floor(am);
     tbuf[bufused++] = ORD0 + decimal;
@@ -185,7 +190,7 @@ extern void sbuf_appendd(Sbuf *buf, const double f)
   sbuf_appends(buf, tbuf);
 }
 
-void sbuf_printf(Sbuf *buf, const char *fmt, ...)
+void sbuf_printf(Sbuf *buf, char *fmt, ...)
 {
   assert(buf != 0);
   assert(fmt != 0);

@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-04-11T13:18:33+0200
+// Last modified: 2026-04-11T13:20:47+0200
 
 #include "sbuf.h"
 #include <assert.h>
@@ -106,7 +106,11 @@ extern void sbuf_appendd(Sbuf *buf, double f)
   int decimal = (int)floor(am);
   tbuf[bufused++] = ORD0 + decimal;
   am = (am - decimal) * 10;
-  tbuf[bufused++] = '.';
+  if (buf->decsep != 0) {
+    tbuf[bufused++] = buf->decsep;
+  } else {
+    tbuf[bufused++] = '.';
+  }
   do {
     decimal = (int)floor(am);
     tbuf[bufused++] = ORD0 + decimal;

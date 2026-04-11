@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-04-11T13:18:17+0200
+// Last modified: 2026-04-11T13:19:52+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -25,6 +25,7 @@
 typedef struct {
   ptrdiff_t used;
   bool error;  // use “error” instead of “ok” so a zerod-out Sbuf is valid.
+  char decsep; // decimal separator for sbuf_appendd. If 0, then "." is used.
   char data[SBUF_SIZE];
 } Sbuf;
 
