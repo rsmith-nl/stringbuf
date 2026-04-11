@@ -180,17 +180,22 @@ extern void sbuf_appendd(Sbuf *buf, double f)
   }
   int decimal = (int)floor(am);
   tbuf[bufused++] = ORD0 + decimal;
-  am = (am - decimal) * 10;
+  am = (am - decimal) * 10.0;
   if (buf->decsep != 0) {
     tbuf[bufused++] = buf->decsep;
   } else {
     tbuf[bufused++] = '.';
   }
+  int loopexp = 0;
   do {
     decimal = (int)floor(am);
     tbuf[bufused++] = ORD0 + decimal;
-    am = round((am - decimal) * 100) / 10.0;
-  } while (am > 0 && bufused < EXPLEN);
+    am = (am - decimal) * 10.0;
+    frexp10(am, &loopexp);
+    if (decimal == 9 && am > 9.5) {
+      break;
+    }
+  } while (am > 0 && loopexp == 0 && bufused < EXPLEN);
   tbuf[bufused++] = 'e';
   if (exp < 0) {
     tbuf[bufused++] = '-';
@@ -199,12 +204,14 @@ extern void sbuf_appendd(Sbuf *buf, double f)
     tbuf[bufused++] = '+';
   }
   if (exp > 100) {
-    tbuf[bufused++] = ORD0 + exp / 100;
-  } else if (exp > 10) {
-    tbuf[bufused++] = ORD0 + exp / 10;
-  } else {
-    tbuf[bufused++] = ORD0 + exp;
+    tbuf[bufused++] = ORD0 + 1;
+    exp -= 100;
   }
+  if (exp > 10) {
+    tbuf[bufused++] = ORD0 + exp / 10;
+    exp -= 10;
+  }
+  tbuf[bufused++] = ORD0 + exp;
   sbuf_appends(buf, tbuf);
 }
 
