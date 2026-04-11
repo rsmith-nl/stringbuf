@@ -1,11 +1,11 @@
-// file: buffer.c
+// file: sbuf.c
 // vim:fileencoding=utf-8:ft=c:tabstop=2
 // This is free and unencumbered software released into the public domain.
 //
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-04-11T18:31:55+0200
+// Last modified: 2026-04-11T20:02:45+0200
 
 #include "sbuf.h"
 #include <assert.h>
