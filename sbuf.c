@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-04-11T13:41:48+0200
+// Last modified: 2026-04-11T14:20:32+0200
 
 #include "sbuf.h"
 #include <assert.h>
@@ -28,6 +28,21 @@ void sbuf_append(Sbuf *buf, char *str, ptrdiff_t len)
   if (len < remaining) {
     memcpy(buf->data + buf->used, str, alen);
     buf->used += alen;
+    buf->error = false;
+  } else {
+    buf->error = true;
+  }
+}
+
+void sbuf_appendc(Sbuf *buf, char c)
+{
+  assert(buf != 0);
+  if (buf->error == true) {
+    return;
+  }
+  ptrdiff_t remaining = SBUF_SIZE - buf->used - 1;
+  if (remaining >= 1) {
+    buf->data[buf->used++] = c;
     buf->error = false;
   } else {
     buf->error = true;

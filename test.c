@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-04-11T13:42:28+0200
+// Last modified: 2026-04-11T14:27:07+0200
 
 #define SBUF_IMPLEMENTATION
 #include "single_header/sbuf.h"
@@ -52,7 +52,13 @@ int main(int argc, char *argv[])
   sbuf_reset(&buf);
   pass_fail(buf.error == false);
   pass_fail(buf.used == 0);
+  puts(CYAN"Using sbuf_appendc. "RESET);
+  sbuf_reset(&buf);
+  sbuf_appendc(&buf, '!');
+  pass_fail(buf.error == false);
+  pass_fail(strcmp(buf.data, "!") == 0);
   puts(CYAN"Using sbuf_appends. "RESET);
+  sbuf_reset(&buf);
   sbuf_appends(&buf, second);
   pass_fail(buf.error == false);
   pass_fail(strcmp(buf.data, second) == 0);
