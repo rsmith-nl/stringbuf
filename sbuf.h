@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-03-20T12:47:30+0100
+// Last modified: 2026-04-11T13:07:05+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -36,19 +36,19 @@ extern "C" {
 // All appends immediately return if “error” is “true”.
 
 // Appends at most “len” bytes to “buf” from “str”.
-extern void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len);
+extern void sbuf_append(Sbuf *buf, char *str, ptrdiff_t len);
 
 // Appends null-terminated strings “str” to “buf”.
-extern void sbuf_appends(Sbuf *buf, const char *str);
+extern void sbuf_appends(Sbuf *buf, char *str);
 
 // Format and append an integer number to buf.
-extern void sbuf_appendi32(Sbuf *buf, const int32_t i);
+extern void sbuf_appendi32(Sbuf *buf, int32_t i);
 
 // Format and append a double to buf.
-extern void sbuf_appendd(Sbuf *buf, const double f);
+extern void sbuf_appendd(Sbuf *buf, double f);
 
 // Append using snprintf.
-extern void sbuf_printf(Sbuf *buf, const char *fmt, ...);
+extern void sbuf_printf(Sbuf *buf, char *fmt, ...);
 
 // Returns how much space remains in the buffer “buf”.
 extern ptrdiff_t sbuf_remaining(Sbuf *buf);

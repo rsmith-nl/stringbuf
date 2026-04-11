@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-03-20T12:46:33+0100
+// Last modified: 2026-04-11T13:06:57+0200
 
 #include "sbuf.h"
 #include <assert.h>
@@ -16,7 +16,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len)
+void sbuf_append(Sbuf *buf, char *str, ptrdiff_t len)
 {
   assert(buf != 0);
   assert(str != 0);
@@ -34,12 +34,12 @@ void sbuf_append(Sbuf *buf, const char *str, const ptrdiff_t len)
   }
 }
 
-inline void sbuf_appends(Sbuf *buf, const char *str)
+inline void sbuf_appends(Sbuf *buf, char *str)
 {
   sbuf_append(buf, str, strlen(str));
 }
 
-extern void sbuf_appendi32(Sbuf *buf, const int32_t i)
+extern void sbuf_appendi32(Sbuf *buf, int32_t i)
 {
   assert(buf != 0);
   if (buf->error == true) {
@@ -75,7 +75,7 @@ static double frexp10(double arg, int *exp)
   return arg * pow(10, -(*exp));
 }
 
-extern void sbuf_appendd(Sbuf *buf, const double f)
+extern void sbuf_appendd(Sbuf *buf, double f)
 {
 #define BUFLEND 30
 #define EXPLEN (BUFLEND-4-1)
@@ -129,7 +129,7 @@ extern void sbuf_appendd(Sbuf *buf, const double f)
   sbuf_appends(buf, tbuf);
 }
 
-void sbuf_printf(Sbuf *buf, const char *fmt, ...)
+void sbuf_printf(Sbuf *buf, char *fmt, ...)
 {
   assert(buf != 0);
   assert(fmt != 0);
