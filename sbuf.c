@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-04-22T23:27:57+0200
+// Last modified: 2026-04-22T23:44:44+0200
 
 #include "sbuf.h"
 #include <assert.h>
@@ -137,15 +137,17 @@ extern void sbuf_appendd(Sbuf *buf, double f)
       return;
     }
     tbuf[bufused++] = '.';
-    char fracbuf[8] = {0};
+    char fracbuf[10] = {0};
     index = sizeof(fracbuf) - 2;
     do {
       div_t result = div(frac, 10);
       fracbuf[index--] = ORD0 + result.rem;
       frac = result.quot;
     } while (frac> 0 && index > 0);
+    // Remove last decimal
+    fracbuf[8] = 0;
     // Remove trailing 0 decimals
-    int ridx = sizeof(fracbuf) - 2;
+    int ridx = sizeof(fracbuf) - 3;
     while (fracbuf[ridx] == '0') {
       fracbuf[ridx--] = 0;
     }

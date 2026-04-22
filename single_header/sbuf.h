@@ -197,15 +197,17 @@ extern void sbuf_appendd(Sbuf *buf, double f)
       return;
     }
     tbuf[bufused++] = '.';
-    char fracbuf[8] = {0};
+    char fracbuf[10] = {0};
     index = sizeof(fracbuf) - 2;
     do {
       div_t result = div(frac, 10);
       fracbuf[index--] = ORD0 + result.rem;
       frac = result.quot;
     } while (frac> 0 && index > 0);
+    // Remove last decimal
+    fracbuf[8] = 0;
     // Remove trailing 0 decimals
-    int ridx = sizeof(fracbuf) - 2;
+    int ridx = sizeof(fracbuf) - 3;
     while (fracbuf[ridx] == '0') {
       fracbuf[ridx--] = 0;
     }
