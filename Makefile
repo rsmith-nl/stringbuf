@@ -2,7 +2,7 @@
 # Use as many jobs as the computer has cores.
 .MAKEFLAGS: -j C
 
-CFLAGS = -pipe -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
+CFLAGS = -pipe -g -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
          -Wshadow -Wmissing-field-initializers -Wpointer-arith
 
 all: single_header/sbuf.h test

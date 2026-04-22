@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-04-22T23:46:14+0200
+// Last modified: 2026-04-22T23:59:25+0200
 
 #define SBUF_IMPLEMENTATION
 #include "single_header/sbuf.h"
@@ -84,11 +84,9 @@ int main(int argc, char *argv[])
   sbuf_appendd(&buf, 457.6);
   pass_fail(strcmp(buf.data, "457.6") == 0);
   sbuf_reset(&buf);
+  buf.decsep = ',';
   sbuf_appendd(&buf, 31.5);
-  pass_fail(strcmp(buf.data, "31.5") == 0);
-
-
-
+  pass_fail(strcmp(buf.data, "31,5") == 0);
   puts(PURPLE"*** Result ***"RESET);
   if (failcount == 0) {
     puts(GREEN"+++ All tests PASSED! +++"RESET);
