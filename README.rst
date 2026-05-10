@@ -5,7 +5,7 @@ Simple string assembly for C
 :tags: C programming, string building, public domain
 :author: Roland Smith
 
-.. Last modified: 2026-04-08T00:26:12+0200
+.. Last modified: 2026-05-10T13:23:46+0200
 .. vim:spelllang=en
 
 Introduction
@@ -14,6 +14,14 @@ Introduction
 Assembling strings for printing is something that is often needed. Usually this is done ad-hoc.
 For that purpose I wrote this simple library, which fills most of my use cases.
 Header and implementation are less than 100 lines of code in total.
+
+
+No AI policy
+============
+
+This code is by a human and for humans.
+"AI" / LLM-generated rewrites and additions are not welcome.
+
 
 Implementation
 ==============
