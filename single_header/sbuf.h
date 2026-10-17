@@ -190,7 +190,7 @@ extern void sbuf_appendd(Sbuf *buf, double f)
       intbuf[index--] = ORD0 + result.rem;
       value = result.quot;
     } while (value > 0 && index > 0);
-    strcpy(tbuf+bufused, intbuf+index+1);
+    strlcpy(tbuf+bufused, intbuf+index+1, BUFLEND-bufused-1);
     bufused += strlen(intbuf+index+1);
     if (frac == 0) {
       sbuf_appends(buf, tbuf);
@@ -213,7 +213,7 @@ extern void sbuf_appendd(Sbuf *buf, double f)
     while (fracbuf[ridx] == '0') {
       fracbuf[ridx--] = 0;
     }
-    strcpy(tbuf+bufused, fracbuf+index+1);
+    strlcpy(tbuf+bufused, fracbuf+index+1, BUFLEND-bufused-1);
     sbuf_appends(buf, tbuf);
     return;
   }
