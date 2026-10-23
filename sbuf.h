@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-04-11T14:18:24+0200
+// Last modified: 2026-10-23T09:46:23+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -21,6 +21,7 @@
 #include <limits.h>  // for PATH_MAX
 
 #define SBUF_SIZE PATH_MAX
+#define SBUF_MAX (SBUF_SIZE-1)
 
 typedef struct {
   ptrdiff_t used;
