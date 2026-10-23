@@ -4,11 +4,14 @@
 
 CFLAGS = -pipe -g -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
          -Wshadow -Wmissing-field-initializers -Wpointer-arith
+DCFLAGS = -pipe -g3 -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
+         -Wshadow-all -Wmissing-field-initializers -Wpointer-arith \
+		 -fsanitize=address,undefined
 
 all: single_header/sbuf.h test
 
 test: test.c single_header/sbuf.h  ## builds the test program (default).
-	$(CC) $(CFLAGS) -o test test.c -lm
+	$(CC) $(DCFLAGS) -o test test.c sbuf.c -lm
 
 single_header/sbuf.h: sbuf.c sbuf.h
 	cp sbuf.h single_header/sbuf.h
