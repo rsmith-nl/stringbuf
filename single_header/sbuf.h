@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-23T10:46:50+0200
+// Last modified: 2026-10-23T14:51:17+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -71,6 +71,9 @@ ptrdiff_t sbuf_find(Sbuf *buf, char *f);
 // Replace a character in the whole buffer.
 void sbuf_replace_char(Sbuf *buf, char from, char to);
 
+// Replace a string in the whole buffer.
+void sbuf_replace_string(Sbuf *buf, char *from, char *to);
+
 // Switch ascii characters to lowercase
 void sbuf_ascii_lower(Sbuf *buf);
 
@@ -92,11 +95,12 @@ void sbuf_append(Sbuf *buf, char *str, ptrdiff_t len)
 {
   assert(buf != 0);
   assert(str != 0);
+  assert(len >= 0);
   if (buf->error == true) {
     return;
   }
   ptrdiff_t alen = strnlen(str, len);
-  ptrdiff_t remaining = SBUF_SIZE - buf->used - 1;
+  ptrdiff_t remaining = SBUF_MAX - buf->used;
   if (len < remaining) {
     memcpy(buf->data + buf->used, str, alen);
     buf->used += alen;
@@ -112,7 +116,7 @@ void sbuf_appendc(Sbuf *buf, char c)
   if (buf->error == true) {
     return;
   }
-  ptrdiff_t remaining = SBUF_SIZE - buf->used - 1;
+  ptrdiff_t remaining = SBUF_MAX - buf->used;
   if (remaining >= 1) {
     buf->data[buf->used++] = c;
     buf->error = false;
@@ -123,7 +127,7 @@ void sbuf_appendc(Sbuf *buf, char c)
 
 inline void sbuf_appends(Sbuf *buf, char *str)
 {
-  sbuf_append(buf, str, strlen(str));
+  sbuf_append(buf, str, strnlen(str, SBUF_MAX));
 }
 
 extern void sbuf_appendi(Sbuf *buf, int64_t i)
@@ -132,7 +136,7 @@ extern void sbuf_appendi(Sbuf *buf, int64_t i)
   if (buf->error == true) {
     return;
   }
-#define BUFLENI 21
+#define BUFLENI 32
 #define ORD0 48
   int64_t work = 0;
   bool negative = false;
@@ -153,7 +157,8 @@ extern void sbuf_appendi(Sbuf *buf, int64_t i)
     assert(index > 0);
     tmpbuf[index--] = '-';
   }
-  sbuf_appends(buf, tmpbuf + index + 1);
+  index++;
+  sbuf_append(buf, tmpbuf + index, strnlen(tmpbuf + index, BUFLENI - index));
 }
 
 static double frexp10(double arg, int *exp)
@@ -180,14 +185,14 @@ extern void sbuf_appendd(Sbuf *buf, double f)
   }
   if (isinf(f)) {
     char inf[4] = {0xE2, 0x88, 0x9E, 0}; // UTF-8 for infinity symbol.
-    sbuf_appends(buf, inf);
+    sbuf_append(buf, inf, 4);
     return;
   } else if (mantissa == 0 && exp == 0) {
     tbuf[bufused++] = '0';
-    sbuf_appends(buf, tbuf);
+    sbuf_append(buf, tbuf, BUFLEND);
     return;
   } else if (isnan(f)) {
-    sbuf_appends(buf, "NaN");
+    sbuf_append(buf, "NaN", 3);
     return;
   }
   if (exp > 0 && exp < 10) {
@@ -205,7 +210,7 @@ extern void sbuf_appendd(Sbuf *buf, double f)
     strncpy(tbuf+bufused, intbuf+index+1, BUFLEND-bufused-1);
     bufused += strlen(intbuf+index+1);
     if (frac == 0) {
-      sbuf_appends(buf, tbuf);
+      sbuf_append(buf, tbuf, BUFLEND);
       return;
     }
     if (buf->decsep == 0) {
@@ -226,7 +231,7 @@ extern void sbuf_appendd(Sbuf *buf, double f)
       fracbuf[ridx--] = 0;
     }
     strncpy(tbuf+bufused, fracbuf+index+1, BUFLEND-bufused-1);
-    sbuf_appends(buf, tbuf);
+    sbuf_append(buf, tbuf, BUFLEND);
     return;
   }
 
@@ -264,7 +269,7 @@ extern void sbuf_appendd(Sbuf *buf, double f)
     exp -= 10;
   }
   tbuf[bufused++] = ORD0 + exp;
-  sbuf_appends(buf, tbuf);
+  sbuf_append(buf, tbuf, BUFLEND);
 }
 
 void sbuf_printf(Sbuf *buf, char *fmt, ...)
@@ -291,7 +296,7 @@ void sbuf_printf(Sbuf *buf, char *fmt, ...)
 ptrdiff_t sbuf_remaining(Sbuf *buf)
 {
   assert(buf != 0);
-  ptrdiff_t remaining = SBUF_SIZE - buf->used - 1;
+  ptrdiff_t remaining = SBUF_MAX - buf->used;
   return remaining;
 }
 
@@ -341,6 +346,48 @@ void sbuf_replace_char(Sbuf *buf, char from, char to)
     };
   }
 }
+
+void sbuf_replace_string(Sbuf *buf, char *from, char *to)
+{
+  assert(buf != 0);
+    if (buf->error == true) {
+    return;
+  }
+  ptrdiff_t fromlen = strnlen(from, SBUF_MAX);
+  ptrdiff_t tolen = strnlen(to, SBUF_MAX);
+  ptrdiff_t offset = tolen - fromlen;
+  if (fromlen > buf->used) {
+    return;
+  }
+  for (ptrdiff_t j = 0; j <= buf->used - fromlen; j++) {
+    if (buf->data[j] == from[0] && strncmp(buf->data+j, from, fromlen) == 0) {
+      // Found “from”.
+      // Make space if “to” is longer than “from”.
+      if (tolen > fromlen) {
+         // Return if not enough room is available.
+        if (sbuf_remaining(buf) < (tolen - fromlen)) {
+          buf->error = true;
+          return;
+        }
+        for (ptrdiff_t k = buf->used + offset; k > j + fromlen; k--) {
+          buf->data[k] = buf->data[k-1];
+        }
+        buf->used += offset;
+      }
+      // Replace
+      strncpy(buf->data + j, to, tolen);
+      // Move remainder if “to” is shorter than “from”.
+      if (fromlen > tolen) {
+        for (ptrdiff_t k = j + tolen; k < buf->used; k++) {
+          buf->data[k] = buf->data[k-offset];
+        };
+      }
+      // Move to past replacement.
+      j += tolen;
+    };
+  }
+}
+
 
 void sbuf_ascii_lower(Sbuf *buf)
 {

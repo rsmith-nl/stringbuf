@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-23T10:46:50+0200
+// Last modified: 2026-10-23T14:51:17+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -70,6 +70,9 @@ ptrdiff_t sbuf_find(Sbuf *buf, char *f);
 
 // Replace a character in the whole buffer.
 void sbuf_replace_char(Sbuf *buf, char from, char to);
+
+// Replace a string in the whole buffer.
+void sbuf_replace_string(Sbuf *buf, char *from, char *to);
 
 // Switch ascii characters to lowercase
 void sbuf_ascii_lower(Sbuf *buf);

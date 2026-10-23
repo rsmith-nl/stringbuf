@@ -5,10 +5,9 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-10-23T11:19:44+0200
+// Last modified: 2026-10-23T22:22:40+0200
 
-#define SBUF_IMPLEMENTATION
-#include "single_header/sbuf.h"
+#include "sbuf.h"
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -67,6 +66,7 @@ int main(int argc, char *argv[])
   sbuf_appendi(&buf, 42371);
   pass_fail(buf.error == false);
   pass_fail(strcmp(buf.data, "42371") == 0);
+  printf("buf.data[0] = %d\n", buf.data[0]);
   sbuf_reset(&buf);
   sbuf_appendi(&buf, 9223372036854775807L);
   pass_fail(buf.error == false);
@@ -100,6 +100,26 @@ int main(int argc, char *argv[])
   sbuf_appends(&buf, "UPPER ñó ãßçìî");
   sbuf_ascii_lower(&buf);
   pass_fail(strcmp(buf.data, "upper ñó ãßçìî") == 0);
+  puts(CYAN"Using sbuf_replace_string. "RESET);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "one two three");
+  sbuf_replace_string(&buf, "two", "f00");
+  pass_fail(strcmp(buf.data, "one f00 three") == 0);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "one two three");
+  sbuf_replace_string(&buf, "one", "f00");
+  pass_fail(strcmp(buf.data, "f00 two three") == 0);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "one two three");
+  sbuf_replace_string(&buf, "three", "f00");
+  pass_fail(strcmp(buf.data, "one two f00") == 0);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "one two three");
+  sbuf_replace_string(&buf, "one", "test");
+  pass_fail(strcmp(buf.data, "test two three") == 0);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "one two three");
+  sbuf_replace_string(&buf, "three", "test");
   puts(PURPLE"*** Result ***"RESET);
   if (failcount == 0) {
     puts(GREEN"+++ All tests PASSED! +++"RESET);
