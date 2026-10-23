@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-04-11T14:18:24+0200
+// Last modified: 2026-10-23T10:46:50+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -21,6 +21,7 @@
 #include <limits.h>  // for PATH_MAX
 
 #define SBUF_SIZE PATH_MAX
+#define SBUF_MAX (SBUF_SIZE-1)
 
 typedef struct {
   ptrdiff_t used;
@@ -42,10 +43,10 @@ extern void sbuf_append(Sbuf *buf, char *str, ptrdiff_t len);
 // Appends a character.
 extern void sbuf_appendc(Sbuf *buf, char c);
 
-// Appends null-terminated strings “str” to “buf”.
+// Appends null-terminated strings “str” to the buffer.
 extern void sbuf_appends(Sbuf *buf, char *str);
 
-// Format and append an integer number to buf.
+// Format and append an integer number to “buf”.
 extern void sbuf_appendi(Sbuf *buf, int64_t i);
 
 // Format and append a double to buf.
@@ -62,6 +63,17 @@ extern void sbuf_fputs(Sbuf *buf, FILE* stream);
 
 // Empty the buffer.
 extern void sbuf_reset(Sbuf *buf);
+
+// Returns the offset of the first occurence of “str” in “buf”.
+// In case of error, returns -1.
+ptrdiff_t sbuf_find(Sbuf *buf, char *f);
+
+// Replace a character in the whole buffer.
+void sbuf_replace_char(Sbuf *buf, char from, char to);
+
+// Switch ascii characters to lowercase
+void sbuf_ascii_lower(Sbuf *buf);
+
 
 #ifdef __cplusplus
 }
@@ -297,6 +309,50 @@ void sbuf_reset(Sbuf *buf)
   memset(buf->data, 0, SBUF_SIZE);
   buf->used = 0;
   buf->error = false;
+}
+
+ptrdiff_t sbuf_find(Sbuf *buf, char *f)
+{
+  assert(buf != 0);
+  if (buf->error == true) {
+    return -1;
+  }
+  ptrdiff_t fl = strnlen(f, SBUF_MAX);
+  if (buf->used == 0 || fl == 0 || fl > buf->used) {
+    return -1;
+  }
+  for (ptrdiff_t j = 0; j < buf->used - fl; j++) {
+    if (memcmp(buf->data + j, f, fl) == 0) {
+      return j;
+    }
+  }
+  return -1;
+}
+
+void sbuf_replace_char(Sbuf *buf, char from, char to)
+{
+  assert(buf != 0);
+    if (buf->error == true) {
+    return;
+  }
+  for (ptrdiff_t j = 0; j < buf->used; j++) {
+    if (buf->data[j] == from) {
+      buf->data[j] = to;
+    };
+  }
+}
+
+void sbuf_ascii_lower(Sbuf *buf)
+{
+  assert(buf != 0);
+    if (buf->error == true) {
+    return;
+  }
+  for (ptrdiff_t j = 0; j < buf->used; j++) {
+    if (buf->data[j] > 64 && buf->data[j] < 91) {
+      buf->data[j] += 32;
+    }
+  }
 }
 
 #endif // SBUF_IMPLEMENTATION

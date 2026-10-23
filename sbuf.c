@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-17T15:03:29+0200
+// Last modified: 2026-10-23T10:46:56+0200
 
 #include "sbuf.h"
 #include <assert.h>
@@ -237,4 +237,48 @@ void sbuf_reset(Sbuf *buf)
   memset(buf->data, 0, SBUF_SIZE);
   buf->used = 0;
   buf->error = false;
+}
+
+ptrdiff_t sbuf_find(Sbuf *buf, char *f)
+{
+  assert(buf != 0);
+  if (buf->error == true) {
+    return -1;
+  }
+  ptrdiff_t fl = strnlen(f, SBUF_MAX);
+  if (buf->used == 0 || fl == 0 || fl > buf->used) {
+    return -1;
+  }
+  for (ptrdiff_t j = 0; j < buf->used - fl; j++) {
+    if (memcmp(buf->data + j, f, fl) == 0) {
+      return j;
+    }
+  }
+  return -1;
+}
+
+void sbuf_replace_char(Sbuf *buf, char from, char to)
+{
+  assert(buf != 0);
+    if (buf->error == true) {
+    return;
+  }
+  for (ptrdiff_t j = 0; j < buf->used; j++) {
+    if (buf->data[j] == from) {
+      buf->data[j] = to;
+    };
+  }
+}
+
+void sbuf_ascii_lower(Sbuf *buf)
+{
+  assert(buf != 0);
+    if (buf->error == true) {
+    return;
+  }
+  for (ptrdiff_t j = 0; j < buf->used; j++) {
+    if (buf->data[j] > 64 && buf->data[j] < 91) {
+      buf->data[j] += 32;
+    }
+  }
 }
