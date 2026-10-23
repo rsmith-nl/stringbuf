@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-10-23T22:22:40+0200
+// Last modified: 2026-10-23T22:30:16+0200
 
 #include "sbuf.h"
 
@@ -120,6 +120,19 @@ int main(int argc, char *argv[])
   sbuf_reset(&buf);
   sbuf_appends(&buf, "one two three");
   sbuf_replace_string(&buf, "three", "test");
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "one two three");
+  sbuf_replace_string(&buf, "two", "2");
+  pass_fail(strcmp(buf.data, "one 2 three") == 0);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "one two three");
+  sbuf_replace_string(&buf, "one", "1");
+  pass_fail(strcmp(buf.data, "1 two three") == 0);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "one two three");
+  sbuf_replace_string(&buf, "three", "3");
+  pass_fail(strcmp(buf.data, "one two 3") == 0);
+  //fprintf(stderr, "DEBUG: buf.data = \"%s\"\n", buf.data);
   puts(PURPLE"*** Result ***"RESET);
   if (failcount == 0) {
     puts(GREEN"+++ All tests PASSED! +++"RESET);
