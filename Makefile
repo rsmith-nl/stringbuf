@@ -4,7 +4,7 @@
 
 CFLAGS = -pipe -g -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
          -Wshadow -Wmissing-field-initializers -Wpointer-arith
-DCFLAGS = -pipe -g3 -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
+DCFLAGS = -pipe -g -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
          -Wshadow-all -Wmissing-field-initializers -Wpointer-arith \
 		 -fsanitize=address,undefined
 
