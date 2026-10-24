@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-24T21:50:13+0200
+// Last modified: 2026-10-24T22:01:09+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -66,27 +66,28 @@ extern void sbuf_fputs(Sbuf *buf, FILE* stream);
 // Empty the buffer, reset errors.
 extern void sbuf_reset(Sbuf *buf);
 
-// Returns the offset of the first occurence of “str” in “buf”.
+// Returns the offset of the first occurence of “str” in “buf” 
+// after the index “start”.
 // In case of error, returns -1.
-ptrdiff_t sbuf_find(Sbuf *buf, char *str, ptrdiff_t start);
+extern ptrdiff_t sbuf_find(Sbuf *buf, char *str, ptrdiff_t start);
 
 // Replace a character in the whole buffer.
-void sbuf_replace_char(Sbuf *buf, char from, char to);
+extern void sbuf_replace_char(Sbuf *buf, char from, char to);
 
 // Replace a string in the whole buffer.
-void sbuf_replace_string(Sbuf *buf, char *from, char *to);
+extern void sbuf_replace_string(Sbuf *buf, char *from, char *to);
 
 // Switch ascii characters to lowercase
-void sbuf_ascii_lower(Sbuf *buf);
+extern void sbuf_ascii_lower(Sbuf *buf);
 
 // Strip white space on the left, the beginning of the buffer.
-void sbuf_lstrip(Sbuf *buf);
+extern void sbuf_lstrip(Sbuf *buf);
 
 // Strip white space on the right, the end of the buffer.
-void sbuf_rstrip(Sbuf *buf);
+extern void sbuf_rstrip(Sbuf *buf);
 
 // Strip white space on both ends of the buffer.
-void sbuf_strip(Sbuf *buf);
+extern void sbuf_strip(Sbuf *buf);
 
 #ifdef __cplusplus
 }
