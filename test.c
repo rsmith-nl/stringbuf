@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-10-24T17:14:41+0200
+// Last modified: 2026-10-24T21:52:25+0200
 
 #include "sbuf.h"
 
@@ -91,8 +91,9 @@ int main(int argc, char *argv[])
   puts(CYAN"Using sbuf_find. "RESET);
   sbuf_reset(&buf);
   sbuf_appends(&buf, "this is a test");
-  pass_fail(sbuf_find(&buf, "is") == 2);
-  pass_fail(sbuf_find(&buf, "a") == 8);
+  pass_fail(sbuf_find(&buf, "is", 0) == 2);
+  pass_fail(sbuf_find(&buf, "is", 4) == 5);
+  pass_fail(sbuf_find(&buf, "a", 0) == 8);
   puts(CYAN"Using sbuf_replace_char. "RESET);
   sbuf_replace_char(&buf, ' ', '_');
   pass_fail(buf.data[4] == '_' && buf.data[7] == '_' && buf.data[9] == '_');
