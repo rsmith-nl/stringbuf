@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-24T17:17:10+0200
+// Last modified: 2026-10-24T21:46:33+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -23,9 +23,9 @@
 #define SBUF_MAX (SBUF_SIZE-1)
 
 typedef struct {
-  ptrdiff_t used;
-  bool error;  // use “error” instead of “ok” so a zerod-out Sbuf is valid.
-  char decsep; // decimal separator for sbuf_appendd. If 0, then "." is used.
+  ptrdiff_t used;   // Amount of characters used.
+  bool error;  // Use “error” instead of “ok” so a zerod-out Sbuf is valid.
+  char decsep; // Decimal separator for sbuf_appendd. If 0, then "." is used.
   char data[SBUF_SIZE];
 } Sbuf;
 
@@ -36,13 +36,16 @@ extern "C" {
 // All appends set “error” to “true” if there is not enough space.
 // All appends immediately return if “error” is “true”.
 
-// Appends at most “len” bytes to “buf” from “str”.
+// Appends at most “len” bytes to the buffer from “str”.
 extern void sbuf_append(Sbuf *buf, char *str, ptrdiff_t len);
 
-// Appends a character.
+// Appends a character to the buffer.
 extern void sbuf_appendc(Sbuf *buf, char c);
 
-// Appends null-terminated strings “str” to the buffer.
+// Macro to append a space to the buffer.
+#define sbuf_append_space(buf) sbuf_appendc((buf), ' ')
+
+// Appends a null-terminated string to the buffer.
 extern void sbuf_appends(Sbuf *buf, char *str);
 
 // Format and append an integer number to “buf”.
@@ -54,18 +57,18 @@ extern void sbuf_appendd(Sbuf *buf, double f);
 // Append using snprintf.
 extern void sbuf_printf(Sbuf *buf, char *fmt, ...);
 
-// Returns how much space remains in the buffer “buf”.
+// Returns how much space remains in the buffer.
 extern ptrdiff_t sbuf_remaining(Sbuf *buf);
 
 // Writes the buffer to the designated stream, and flushes the stream.
 extern void sbuf_fputs(Sbuf *buf, FILE* stream);
 
-// Empty the buffer.
+// Empty the buffer, reset errors.
 extern void sbuf_reset(Sbuf *buf);
 
 // Returns the offset of the first occurence of “str” in “buf”.
 // In case of error, returns -1.
-ptrdiff_t sbuf_find(Sbuf *buf, char *f);
+ptrdiff_t sbuf_find(Sbuf *buf, char *str);
 
 // Replace a character in the whole buffer.
 void sbuf_replace_char(Sbuf *buf, char from, char to);
@@ -76,15 +79,14 @@ void sbuf_replace_string(Sbuf *buf, char *from, char *to);
 // Switch ascii characters to lowercase
 void sbuf_ascii_lower(Sbuf *buf);
 
-// Strip white space on the left.
+// Strip white space on the left, the beginning of the buffer.
 void sbuf_lstrip(Sbuf *buf);
 
-// Strip white space on the right.
+// Strip white space on the right, the end of the buffer.
 void sbuf_rstrip(Sbuf *buf);
 
-// Strip white space on both ends.
+// Strip white space on both ends of the buffer.
 void sbuf_strip(Sbuf *buf);
-
 
 #ifdef __cplusplus
 }
@@ -329,18 +331,18 @@ void sbuf_reset(Sbuf *buf)
   buf->error = false;
 }
 
-ptrdiff_t sbuf_find(Sbuf *buf, char *f)
+ptrdiff_t sbuf_find(Sbuf *buf, char *str)
 {
   assert(buf != 0);
   if (buf->error == true) {
     return -1;
   }
-  ptrdiff_t fl = strnlen(f, SBUF_MAX);
+  ptrdiff_t fl = strnlen(str, SBUF_MAX);
   if (buf->used == 0 || fl == 0 || fl > buf->used) {
     return -1;
   }
   for (ptrdiff_t j = 0; j < buf->used - fl; j++) {
-    if (memcmp(buf->data + j, f, fl) == 0) {
+    if (memcmp(buf->data + j, str, fl) == 0) {
       return j;
     }
   }
@@ -369,11 +371,11 @@ void sbuf_replace_string(Sbuf *buf, char *from, char *to)
     return;
   }
   ptrdiff_t fromlen = strnlen(from, SBUF_MAX);
-  ptrdiff_t tolen = strnlen(to, SBUF_MAX);
-  ptrdiff_t offset = tolen - fromlen;
   if (fromlen > buf->used) {
     return;
   }
+  ptrdiff_t tolen = strnlen(to, SBUF_MAX);
+  ptrdiff_t offset = tolen - fromlen;
   for (ptrdiff_t j = 0; j <= buf->used - fromlen; j++) {
     if (buf->data[j] == from[0] && strncmp(buf->data + j, from, fromlen) == 0) {
       // Found “from”.

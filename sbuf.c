@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-24T16:24:11+0200
+// Last modified: 2026-10-24T21:45:04+0200
 
 #include "sbuf.h"
 #include <assert.h>
@@ -246,18 +246,18 @@ void sbuf_reset(Sbuf *buf)
   buf->error = false;
 }
 
-ptrdiff_t sbuf_find(Sbuf *buf, char *f)
+ptrdiff_t sbuf_find(Sbuf *buf, char *str)
 {
   assert(buf != 0);
   if (buf->error == true) {
     return -1;
   }
-  ptrdiff_t fl = strnlen(f, SBUF_MAX);
+  ptrdiff_t fl = strnlen(str, SBUF_MAX);
   if (buf->used == 0 || fl == 0 || fl > buf->used) {
     return -1;
   }
   for (ptrdiff_t j = 0; j < buf->used - fl; j++) {
-    if (memcmp(buf->data + j, f, fl) == 0) {
+    if (memcmp(buf->data + j, str, fl) == 0) {
       return j;
     }
   }
@@ -286,11 +286,11 @@ void sbuf_replace_string(Sbuf *buf, char *from, char *to)
     return;
   }
   ptrdiff_t fromlen = strnlen(from, SBUF_MAX);
-  ptrdiff_t tolen = strnlen(to, SBUF_MAX);
-  ptrdiff_t offset = tolen - fromlen;
   if (fromlen > buf->used) {
     return;
   }
+  ptrdiff_t tolen = strnlen(to, SBUF_MAX);
+  ptrdiff_t offset = tolen - fromlen;
   for (ptrdiff_t j = 0; j <= buf->used - fromlen; j++) {
     if (buf->data[j] == from[0] && strncmp(buf->data + j, from, fromlen) == 0) {
       // Found “from”.
