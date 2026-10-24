@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-23T14:51:17+0200
+// Last modified: 2026-10-24T15:34:01+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -76,6 +76,15 @@ void sbuf_replace_string(Sbuf *buf, char *from, char *to);
 
 // Switch ascii characters to lowercase
 void sbuf_ascii_lower(Sbuf *buf);
+
+// Strip white space on the left.
+void sbuf_lstrip(Sbuf *buf);
+
+// Strip white space on the right.
+void sbuf_rstrip(Sbuf *buf);
+
+// Strip white space on both ends.
+void sbuf_strip(Sbuf *buf);
 
 
 #ifdef __cplusplus

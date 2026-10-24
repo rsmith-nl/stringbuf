@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-23T14:51:17+0200
+// Last modified: 2026-10-24T15:34:01+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -76,6 +76,15 @@ void sbuf_replace_string(Sbuf *buf, char *from, char *to);
 
 // Switch ascii characters to lowercase
 void sbuf_ascii_lower(Sbuf *buf);
+
+// Strip white space on the left.
+void sbuf_lstrip(Sbuf *buf);
+
+// Strip white space on the right.
+void sbuf_rstrip(Sbuf *buf);
+
+// Strip white space on both ends.
+void sbuf_strip(Sbuf *buf);
 
 
 #ifdef __cplusplus
@@ -203,7 +212,7 @@ extern void sbuf_appendd(Sbuf *buf, double f)
     // Format as dddd.dddddd, with 6 decimal places.
     // Format integer part
     int value = (int)f;
-    int frac = (int)round((f - (double)value)*1e6);
+    int frac = (int)round((f - (double)value) * 1e6);
     char intbuf[11] = {0};
     int index = sizeof(intbuf) - 2;
     do {
@@ -211,8 +220,8 @@ extern void sbuf_appendd(Sbuf *buf, double f)
       intbuf[index--] = ORD0 + result.rem;
       value = result.quot;
     } while (value > 0 && index > 0);
-    strncpy(tbuf+bufused, intbuf+index+1, BUFLEND-bufused-1);
-    bufused += strlen(intbuf+index+1);
+    strncpy(tbuf + bufused, intbuf + index + 1, BUFLEND - bufused - 1);
+    bufused += strlen(intbuf + index + 1);
     if (frac == 0) {
       sbuf_append(buf, tbuf, BUFLEND);
       return;
@@ -228,17 +237,16 @@ extern void sbuf_appendd(Sbuf *buf, double f)
       div_t result = div(frac, 10);
       fracbuf[index--] = ORD0 + result.rem;
       frac = result.quot;
-    } while (frac> 0 && index > 0);
+    } while (frac > 0 && index > 0);
     // Remove trailing 0 decimals
     int ridx = sizeof(fracbuf) - 3;
     while (fracbuf[ridx] == '0') {
       fracbuf[ridx--] = 0;
     }
-    strncpy(tbuf+bufused, fracbuf+index+1, BUFLEND-bufused-1);
+    strncpy(tbuf + bufused, fracbuf + index + 1, BUFLEND - bufused - 1);
     sbuf_append(buf, tbuf, BUFLEND);
     return;
   }
-
   int decimal = (int)floor(am);
   tbuf[bufused++] = ORD0 + decimal;
   am = (am - decimal) * 10.0;
@@ -343,7 +351,7 @@ ptrdiff_t sbuf_find(Sbuf *buf, char *f)
 void sbuf_replace_char(Sbuf *buf, char from, char to)
 {
   assert(buf != 0);
-    if (buf->error == true) {
+  if (buf->error == true) {
     return;
   }
   for (ptrdiff_t j = 0; j < buf->used; j++) {
@@ -358,7 +366,7 @@ void sbuf_replace_char(Sbuf *buf, char from, char to)
 void sbuf_replace_string(Sbuf *buf, char *from, char *to)
 {
   assert(buf != 0);
-    if (buf->error == true) {
+  if (buf->error == true) {
     return;
   }
   ptrdiff_t fromlen = strnlen(from, SBUF_MAX);
@@ -368,17 +376,17 @@ void sbuf_replace_string(Sbuf *buf, char *from, char *to)
     return;
   }
   for (ptrdiff_t j = 0; j <= buf->used - fromlen; j++) {
-    if (buf->data[j] == from[0] && strncmp(buf->data+j, from, fromlen) == 0) {
+    if (buf->data[j] == from[0] && strncmp(buf->data + j, from, fromlen) == 0) {
       // Found “from”.
       // Make space if “to” is longer than “from”.
       if (tolen > fromlen) {
-         // Return if not enough room is available.
+        // Return if not enough room is available.
         if (sbuf_remaining(buf) < (tolen - fromlen)) {
           buf->error = true;
           return;
         }
         for (ptrdiff_t k = buf->used + offset; k > j + fromlen; k--) {
-          buf->data[k] = buf->data[k-1];
+          buf->data[k] = buf->data[k - 1];
         }
         buf->used += offset;
       }
@@ -387,7 +395,7 @@ void sbuf_replace_string(Sbuf *buf, char *from, char *to)
       // Move remainder if “to” is shorter than “from”.
       if (fromlen > tolen) {
         for (ptrdiff_t k = j + tolen; k < buf->used; k++) {
-          buf->data[k] = buf->data[k-offset];
+          buf->data[k] = buf->data[k - offset];
         };
       }
       // Move to past replacement.
@@ -402,7 +410,7 @@ void sbuf_replace_string(Sbuf *buf, char *from, char *to)
 void sbuf_ascii_lower(Sbuf *buf)
 {
   assert(buf != 0);
-    if (buf->error == true) {
+  if (buf->error == true) {
     return;
   }
   for (ptrdiff_t j = 0; j < buf->used; j++) {
@@ -413,5 +421,61 @@ void sbuf_ascii_lower(Sbuf *buf)
   buf->data[buf->used] = 0;
   buf->data[SBUF_MAX] = 0;
 }
+
+void sbuf_lstrip(Sbuf *buf)
+{
+  assert(buf != 0);
+  if (buf->error == true) {
+    return;
+  }
+  ptrdiff_t to = 0, from = 0;
+  for (ptrdiff_t j = 0; j < buf->used; j++) {
+    // Check for whitespace.
+    if (buf->data[j] == ' ' || buf->data[j] == '\t' || buf->data[j] == '\n' ||
+        buf->data[j] == '\r' || buf->data[j] == '\v') {
+    } else {
+      from = j;
+      break;
+    }
+  }
+  ptrdiff_t offset = from - to;
+  if (from == to) {
+    return;
+  }
+  for (; from < buf->used; from++, to++) {
+    buf->data[to] = buf->data[from];
+  }
+  for (; to < buf->used; to++) {
+    buf->data[to] = 0;
+  }
+  buf->used -= offset;
+  buf->data[buf->used] = 0;
+  buf->data[SBUF_MAX] = 0;
+}
+
+void sbuf_rstrip(Sbuf *buf)
+{
+  assert(buf != 0);
+  if (buf->error == true) {
+    return;
+  }
+  for (ptrdiff_t j = buf->used - 1; j > 0; j--) {
+    // Check for whitespace.
+    if (buf->data[j] == ' ' || buf->data[j] == '\t' || buf->data[j] == '\n' ||
+        buf->data[j] == '\r' || buf->data[j] == '\v') {
+      buf->data[j] = 0;
+      buf->used--;
+    } else {
+      break;
+    }
+  }
+}
+
+void sbuf_strip(Sbuf *buf)
+{
+  sbuf_rstrip(buf);
+  sbuf_lstrip(buf);
+}
+
 
 #endif // SBUF_IMPLEMENTATION

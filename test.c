@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-10-23T22:30:16+0200
+// Last modified: 2026-10-24T17:14:41+0200
 
 #include "sbuf.h"
 
@@ -30,6 +30,7 @@
       printf("\033[0;32mPASSED:\033[0m " #cond "\n"); \
     } else { \
       printf("\033[1;31mFAILED:\033[0m " #cond "\n"); \
+      fprintf(stderr, "DEBUG: buf.data = \"%s\"\n", buf.data); \
       failcount++; \
     } \
   while (0)
@@ -132,7 +133,19 @@ int main(int argc, char *argv[])
   sbuf_appends(&buf, "one two three");
   sbuf_replace_string(&buf, "three", "3");
   pass_fail(strcmp(buf.data, "one two 3") == 0);
-  //fprintf(stderr, "DEBUG: buf.data = \"%s\"\n", buf.data);
+  puts(CYAN"Using sbuf_*strip. "RESET);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "right  ");
+  sbuf_rstrip(&buf);
+  pass_fail(strcmp(buf.data, "right") == 0);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "  left");
+  sbuf_lstrip(&buf);
+  pass_fail(strcmp(buf.data, "left") == 0);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "  both    ");
+  sbuf_strip(&buf);
+  pass_fail(strcmp(buf.data, "both") == 0);
   puts(PURPLE"*** Result ***"RESET);
   if (failcount == 0) {
     puts(GREEN"+++ All tests PASSED! +++"RESET);

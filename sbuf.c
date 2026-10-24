@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-24T13:52:06+0200
+// Last modified: 2026-10-24T16:24:11+0200
 
 #include "sbuf.h"
 #include <assert.h>
@@ -337,3 +337,59 @@ void sbuf_ascii_lower(Sbuf *buf)
   buf->data[buf->used] = 0;
   buf->data[SBUF_MAX] = 0;
 }
+
+void sbuf_lstrip(Sbuf *buf)
+{
+  assert(buf != 0);
+  if (buf->error == true) {
+    return;
+  }
+  ptrdiff_t to = 0, from = 0;
+  for (ptrdiff_t j = 0; j < buf->used; j++) {
+    // Check for whitespace.
+    if (buf->data[j] == ' ' || buf->data[j] == '\t' || buf->data[j] == '\n' ||
+        buf->data[j] == '\r' || buf->data[j] == '\v') {
+    } else {
+      from = j;
+      break;
+    }
+  }
+  ptrdiff_t offset = from - to;
+  if (from == to) {
+    return;
+  }
+  for (; from < buf->used; from++, to++) {
+    buf->data[to] = buf->data[from];
+  }
+  for (; to < buf->used; to++) {
+    buf->data[to] = 0;
+  }
+  buf->used -= offset;
+  buf->data[buf->used] = 0;
+  buf->data[SBUF_MAX] = 0;
+}
+
+void sbuf_rstrip(Sbuf *buf)
+{
+  assert(buf != 0);
+  if (buf->error == true) {
+    return;
+  }
+  for (ptrdiff_t j = buf->used - 1; j > 0; j--) {
+    // Check for whitespace.
+    if (buf->data[j] == ' ' || buf->data[j] == '\t' || buf->data[j] == '\n' ||
+        buf->data[j] == '\r' || buf->data[j] == '\v') {
+      buf->data[j] = 0;
+      buf->used--;
+    } else {
+      break;
+    }
+  }
+}
+
+void sbuf_strip(Sbuf *buf)
+{
+  sbuf_rstrip(buf);
+  sbuf_lstrip(buf);
+}
+
