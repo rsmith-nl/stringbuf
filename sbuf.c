@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-23T22:20:02+0200
+// Last modified: 2026-10-24T13:52:06+0200
 
 #include "sbuf.h"
 #include <assert.h>
@@ -30,6 +30,8 @@ void sbuf_append(Sbuf *buf, char *str, ptrdiff_t len)
     memcpy(buf->data + buf->used, str, alen);
     buf->used += alen;
     buf->error = false;
+    buf->data[buf->used] = 0;
+    buf->data[SBUF_MAX] = 0;
   } else {
     buf->error = true;
   }
@@ -45,6 +47,8 @@ void sbuf_appendc(Sbuf *buf, char c)
   if (remaining >= 1) {
     buf->data[buf->used++] = c;
     buf->error = false;
+    buf->data[buf->used] = 0;
+    buf->data[SBUF_MAX] = 0;
   } else {
     buf->error = true;
   }
@@ -215,6 +219,8 @@ void sbuf_printf(Sbuf *buf, char *fmt, ...)
   } else {
     buf->error = false;
     buf->used += used;
+    buf->data[buf->used] = 0;
+    buf->data[SBUF_MAX] = 0;
   }
 }
 
@@ -268,8 +274,10 @@ void sbuf_replace_char(Sbuf *buf, char from, char to)
   for (ptrdiff_t j = 0; j < buf->used; j++) {
     if (buf->data[j] == from) {
       buf->data[j] = to;
-    };
+    }
   }
+  buf->data[buf->used] = 0;
+  buf->data[SBUF_MAX] = 0;
 }
 
 void sbuf_replace_string(Sbuf *buf, char *from, char *to)
@@ -309,8 +317,10 @@ void sbuf_replace_string(Sbuf *buf, char *from, char *to)
       }
       // Move to past replacement.
       j += tolen;
-    };
+    }
   }
+  buf->data[buf->used] = 0;
+  buf->data[SBUF_MAX] = 0;
 }
 
 
@@ -325,4 +335,6 @@ void sbuf_ascii_lower(Sbuf *buf)
       buf->data[j] += 32;
     }
   }
+  buf->data[buf->used] = 0;
+  buf->data[SBUF_MAX] = 0;
 }
