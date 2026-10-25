@@ -21,7 +21,7 @@ single_header/sbuf.h: sbuf.c sbuf.h
 
 .PHONY: clean
 clean:  ## Remove all generated files.
-	rm -f *.o test single_header/sbuf.h
+	rm -f *.o test
 
 .PHONY: style
 style:  ## Reformat source code using astyle.
