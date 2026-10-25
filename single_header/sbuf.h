@@ -151,7 +151,7 @@ inline void sbuf_appends(Sbuf *buf, char *str)
   sbuf_append(buf, str, strnlen(str, SBUF_MAX));
 }
 
-extern void sbuf_appendi(Sbuf *buf, int64_t i)
+void sbuf_appendi(Sbuf *buf, int64_t i)
 {
   assert(buf != 0);
   if (buf->error == true) {
@@ -510,6 +510,5 @@ void sbuf_strip(Sbuf *buf)
   sbuf_rstrip(buf);
   sbuf_lstrip(buf);
 }
-
 
 #endif // SBUF_IMPLEMENTATION

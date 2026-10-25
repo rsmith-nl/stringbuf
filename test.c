@@ -5,9 +5,9 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-10-25T02:26:15+0200
+// Last modified: 2026-10-25T17:40:01+0100
 
-#include "sbuf.h"
+#include "sbuf.c"
 
 #include <stdbool.h>
 #include <stdio.h>

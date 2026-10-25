@@ -1,6 +1,4 @@
 # vim:fileencoding=utf-8:ft=make
-# Use as many jobs as the computer has cores.
-.MAKEFLAGS: -j C
 
 CFLAGS = -pipe -g -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
          -Wshadow -Wmissing-field-initializers -Wpointer-arith
@@ -10,8 +8,8 @@ DCFLAGS = -pipe -g -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
 
 all: single_header/sbuf.h test
 
-test: test.c single_header/sbuf.h  ## builds the test program (default).
-	$(CC) $(DCFLAGS) -o test test.c sbuf.c -lm
+test: test.c sbuf.c sbuf.h  ## builds the test program (default).
+	$(CC) $(DCFLAGS) -o test test.c -lm
 
 single_header/sbuf.h: sbuf.c sbuf.h
 	cp sbuf.h single_header/sbuf.h
