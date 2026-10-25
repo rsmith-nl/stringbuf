@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-25T02:22:26+0200
+// Last modified: 2026-10-25T17:39:12+0100
 
 #include "sbuf.h"
 #include <assert.h>
@@ -59,7 +59,7 @@ inline void sbuf_appends(Sbuf *buf, char *str)
   sbuf_append(buf, str, strnlen(str, SBUF_MAX));
 }
 
-extern void sbuf_appendi(Sbuf *buf, int64_t i)
+void sbuf_appendi(Sbuf *buf, int64_t i)
 {
   assert(buf != 0);
   if (buf->error == true) {
@@ -418,4 +418,3 @@ void sbuf_strip(Sbuf *buf)
   sbuf_rstrip(buf);
   sbuf_lstrip(buf);
 }
-
