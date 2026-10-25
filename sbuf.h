@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-24T22:01:09+0200
+// Last modified: 2026-10-25T02:17:45+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -66,10 +66,16 @@ extern void sbuf_fputs(Sbuf *buf, FILE* stream);
 // Empty the buffer, reset errors.
 extern void sbuf_reset(Sbuf *buf);
 
-// Returns the offset of the first occurence of “str” in “buf” 
+// Returns the offset of the first occurence of “str” in the buffer
 // after the index “start”.
-// In case of error, returns -1.
-extern ptrdiff_t sbuf_find(Sbuf *buf, char *str, ptrdiff_t start);
+// In case of error or if “str” is not found it returns -1.
+extern ptrdiff_t sbuf_lfind(Sbuf *buf, char *str, ptrdiff_t start);
+
+// Returns the offset of the last occurence of “str” in the buffer
+// before the index “end”. If “end” is 0, it will be set to the end of the
+// buffer.
+// In case of error or if “str” is not found it returns -1.
+extern ptrdiff_t sbuf_rfind(Sbuf *buf, char *str, ptrdiff_t end);
 
 // Replace a character in the whole buffer.
 extern void sbuf_replace_char(Sbuf *buf, char from, char to);

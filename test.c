@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-10-24T21:52:25+0200
+// Last modified: 2026-10-25T02:26:15+0200
 
 #include "sbuf.h"
 
@@ -88,12 +88,15 @@ int main(int argc, char *argv[])
   buf.decsep = ',';
   sbuf_appendd(&buf, 31.5);
   pass_fail(strcmp(buf.data, "31,5") == 0);
-  puts(CYAN"Using sbuf_find. "RESET);
+  puts(CYAN"Using sbuf_lfind. "RESET);
   sbuf_reset(&buf);
   sbuf_appends(&buf, "this is a test");
-  pass_fail(sbuf_find(&buf, "is", 0) == 2);
-  pass_fail(sbuf_find(&buf, "is", 4) == 5);
-  pass_fail(sbuf_find(&buf, "a", 0) == 8);
+  pass_fail(sbuf_lfind(&buf, "is", 0) == 2);
+  pass_fail(sbuf_lfind(&buf, "is", 4) == 5);
+  pass_fail(sbuf_lfind(&buf, "a", 0) == 8);
+  puts(CYAN"Using sbuf_rfind. "RESET);
+  pass_fail(sbuf_rfind(&buf, "is", 0) == 5);
+  pass_fail(sbuf_rfind(&buf, "is", 4) == 2);
   puts(CYAN"Using sbuf_replace_char. "RESET);
   sbuf_replace_char(&buf, ' ', '_');
   pass_fail(buf.data[4] == '_' && buf.data[7] == '_' && buf.data[9] == '_');

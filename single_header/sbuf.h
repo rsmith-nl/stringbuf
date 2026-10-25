@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-24T22:01:09+0200
+// Last modified: 2026-10-25T02:17:45+0200
 
 // Simple string buffer.
 // Mostly conceived for assembling strings.
@@ -66,10 +66,16 @@ extern void sbuf_fputs(Sbuf *buf, FILE* stream);
 // Empty the buffer, reset errors.
 extern void sbuf_reset(Sbuf *buf);
 
-// Returns the offset of the first occurence of “str” in “buf” 
+// Returns the offset of the first occurence of “str” in the buffer
 // after the index “start”.
-// In case of error, returns -1.
-extern ptrdiff_t sbuf_find(Sbuf *buf, char *str, ptrdiff_t start);
+// In case of error or if “str” is not found it returns -1.
+extern ptrdiff_t sbuf_lfind(Sbuf *buf, char *str, ptrdiff_t start);
+
+// Returns the offset of the last occurence of “str” in the buffer
+// before the index “end”. If “end” is 0, it will be set to the end of the
+// buffer.
+// In case of error or if “str” is not found it returns -1.
+extern ptrdiff_t sbuf_rfind(Sbuf *buf, char *str, ptrdiff_t end);
 
 // Replace a character in the whole buffer.
 extern void sbuf_replace_char(Sbuf *buf, char from, char to);
@@ -332,20 +338,43 @@ void sbuf_reset(Sbuf *buf)
   buf->error = false;
 }
 
-ptrdiff_t sbuf_find(Sbuf *buf, char *str, ptrdiff_t start)
+ptrdiff_t sbuf_lfind(Sbuf *buf, char *str, ptrdiff_t start)
 {
   assert(buf != 0);
   if (buf->error == true) {
     return -1;
   }
   if (start < 0) {
-    return -1;
+    start = 0;
   }
   ptrdiff_t fl = strnlen(str, SBUF_MAX);
   if (buf->used == 0 || fl == 0 || fl > buf->used) {
     return -1;
   }
   for (ptrdiff_t j = start; j < buf->used - fl; j++) {
+    if (memcmp(buf->data + j, str, fl) == 0) {
+      return j;
+    }
+  }
+  return -1;
+}
+
+ptrdiff_t sbuf_rfind(Sbuf *buf, char *str, ptrdiff_t end)
+{
+  assert(buf != 0);
+  if (buf->error == true) {
+    return -1;
+  }
+  ptrdiff_t fl = strnlen(str, SBUF_MAX);
+  if (buf->used == 0 || fl == 0 || fl > buf->used) {
+    return -1;
+  }
+  if (end < 0) {
+    end = 0;
+  } else if (end == 0) {
+    end = buf->used - 1 - fl;
+  }
+  for (ptrdiff_t j = end; j > 0; j--) {
     if (memcmp(buf->data + j, str, fl) == 0) {
       return j;
     }
