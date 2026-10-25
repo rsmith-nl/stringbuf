@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-10-25T18:36:39+0100
+// Last modified: 2026-10-25T21:14:43+0100
 
 #include "sbuf.c"
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   Sbuf buf = {0};
   char *first = "fixed string.\n";
   char *second = "another fixed string.\n";
-  puts("Built from test.c and sbuf.c, version "VERSION);
+  puts(BOLD_RED"Built from test.c and sbuf.c, version "VERSION""RESET);
   puts(PURPLE"Starting the tests."RESET);
   puts(CYAN"Using sbuf_append. "RESET);
   sbuf_append(&buf, first, strlen(first));
