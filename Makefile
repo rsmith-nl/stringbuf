@@ -1,8 +1,6 @@
 # vim:fileencoding=utf-8:ft=make
 
 CFLAGS = -pipe -g -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
-         -Wshadow -Wmissing-field-initializers -Wpointer-arith
-DCFLAGS = -pipe -g -std=c11 -Wall -Wextra -Wstrict-prototypes -Wpedantic \
          -Wshadow-all -Wmissing-field-initializers -Wpointer-arith \
          -fsanitize=address,undefined
 
@@ -11,7 +9,7 @@ GIT_VERSION!=git describe --dirty --always --tags
 all: single_header/sbuf.h test
 
 test: test.c sbuf.c sbuf.h  ## builds the test program (default).
-	$(CC) $(DCFLAGS) -DVERSION="\"${GIT_VERSION}\"" -o test test.c -lm
+	$(CC) $(CFLAGS) -DVERSION="\"${GIT_VERSION}\"" -o test test.c -lm
 
 single_header/sbuf.h: sbuf.c sbuf.h
 	cp sbuf.h single_header/sbuf.h
