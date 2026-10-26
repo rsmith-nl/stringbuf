@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2026-02-22 10:49:54 +0100
-// Last modified: 2026-10-25T21:14:43+0100
+// Last modified: 2026-10-26T22:10:56+0100
 
 #include "sbuf.c"
 
@@ -142,6 +142,19 @@ int main(int argc, char *argv[])
   sbuf_appends(&buf, "one two three");
   sbuf_replace_string(&buf, "three", "3");
   pass_fail(strcmp(buf.data, "one two 3") == 0);
+  puts(CYAN"Using sbuf_replace_string to remove. "RESET);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "one two three");
+  sbuf_replace_string(&buf, "one ", "");
+  pass_fail(strcmp(buf.data, "two three") == 0);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "one two three");
+  sbuf_replace_string(&buf, "two ", "");
+  pass_fail(strcmp(buf.data, "one three") == 0);
+  sbuf_reset(&buf);
+  sbuf_appends(&buf, "one two three");
+  sbuf_replace_string(&buf, " three", "");
+  pass_fail(strcmp(buf.data, "one two") == 0);
   puts(CYAN"Using sbuf_*strip. "RESET);
   sbuf_reset(&buf);
   sbuf_appends(&buf, "right  ");
