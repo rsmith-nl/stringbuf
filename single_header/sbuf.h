@@ -188,7 +188,7 @@ static double frexp10(double arg, int *exp)
   return arg * pow(10, -(*exp));
 }
 
-extern void sbuf_appendd(Sbuf *buf, double f)
+void sbuf_appendd(Sbuf *buf, double f)
 {
 #define BUFLEND 30
 #define EXPLEN (BUFLEND-4-1)
