@@ -5,7 +5,7 @@
 // Author: R.F. Smith <rsmith@xs4all.nl>
 // SPDX-License-Identifier: Unlicense
 // Created: 2025-08-28 23:49:02 +0200
-// Last modified: 2026-10-25T17:39:12+0100
+// Last modified: 2026-10-28T05:56:22+0100
 
 #include "sbuf.h"
 #include <assert.h>
@@ -96,7 +96,7 @@ static double frexp10(double arg, int *exp)
   return arg * pow(10, -(*exp));
 }
 
-extern void sbuf_appendd(Sbuf *buf, double f)
+void sbuf_appendd(Sbuf *buf, double f)
 {
 #define BUFLEND 30
 #define EXPLEN (BUFLEND-4-1)
